@@ -8,7 +8,7 @@
 # Description:		Provides some automatization processes and simplify
 # 			management of Pootle.
 # Author:		Milan Jaros, Daniel Sanz, Alberto Montero                               
-# Version: 		1.9
+# Version: 		2.0
 # Dependences:		svn, native2ascii, pootle-2.1.2
 ### END INIT INFO
 
@@ -16,119 +16,17 @@
 #	auto-run this script (cron - once per week?): pootle-manager.sh --update-repository --update-pootle-db
 #	UNDER MAINTANANCE information into Apache Pootle root (line 281) 
 
-### BEGIN OF CONFIGURATION
+# Load configuration
+. pootle-manager.conf
+# Load common functions
+. common-functions.sh
+# Simple configuration test
+verify_params 25 "Configuration load failed. You should fill in all variables in pootle-manager.conf." \
+	$POOTLEDIR $PODIR $TMP_DIR $TMP_PROP_IN_DIR $TMP_PROP_OUT_DIR $TMP_PO_DIR \
+	$SVNDIR $SVN_USER $SVN_PASS $PO_USER $PO_PASS $PO_HOST $PO_PORT $PO_SRV \
+	$PO_COOKIES $SVN_HOST $SVN_PORT $SVN_PATH $SVN_SRV $SVN_PATH_PLUGIN_PREFIX \
+	$SVN_PATH_PLUGIN_SUFFIX $FILE $PROP_EXT $PO_EXT $POT_EXT $LANG_SEP
 
-# Configuration of directories
-# base dir for pootle installation
-declare -x -r POOTLEDIR="/var/www/Pootle"
-# translation files for Pootle DB update/sync
-declare -x -r PODIR="$POOTLEDIR/po"
-# temporal work dir for format conversions
-declare -x -r TMP_DIR="/opt/pootle/po-lf"
-declare -x -r TMP_PROP_IN_DIR="$TMP_DIR/prop_in"
-declare -x -r TMP_PROP_OUT_DIR="$TMP_DIR/prop_out"
-declare -x -r TMP_PO_DIR="$TMP_DIR/po"
-# svn update/commit dir
-declare -x -r SVNDIR="/var/projects/trunk"
-
-# Configuration of credentials
-declare -x -r SVN_USER="guest"
-declare -x -r SVN_PASS=""
-declare -x -r PO_USER="xxxxx"
-declare -x -r PO_PASS="xxxxx"
-      
-# Servers configuration
-declare -x -r PO_HOST="xxxxxx"
-declare -x -r PO_PORT="80"
-declare -x -r PO_SRV="http://$PO_HOST:$PO_PORT/pootle"
-declare -x -r PO_COOKIES="$TMP_DIR/${PO_HOST}_${PO_PORT}_cookies.txt"
-declare -x -r SVN_HOST="svn.liferay.com"
-#declare -x -r SVN_HOST="127.0.0.1"
-declare -x -r SVN_PORT="80"
-declare -x -r SVN_PATH="/repos/public"
-declare -x -r SVN_SRV="http://$SVN_HOST:$SVN_PORT/$SVN_PATH"
-declare -x -r SVN_PATH_PLUGIN_PREFIX="/plugins/trunk/portlets/"
-declare -x -r SVN_PATH_PLUGIN_SUFFIX="/docroot/WEB-INF/src/content/"
-
-# List of projects 
-declare -x -r PLUGIN_LIST="mail-portlet knowledge-portlet digg-portlet youtube-portlet wsrp-portlet wiki-navigation-portlet vimeo-portlet so-portlet private-messaging-portlet private-messaging-portlet"
-# TODO: build PROJECT list as a reading of plugins + portal project
-
-#declare -x PROJECTS[0]="portal ${SVN_SRV}/portal/trunk/portal-impl/src/content/"
-declare -x PROJECTS[0]="mail-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}mail-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-declare -x PROJECTS[1]="knowledge-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}knowledge-base-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-declare -x PROJECTS[2]="digg-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}digg-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-declare -x PROJECTS[3]="youtube-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}youtube-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-declare -x PROJECTS[4]="wsrp-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}wsrp-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-declare -x PROJECTS[5]="wiki-navigation-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}wiki-navigation-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-declare -x PROJECTS[6]="vimeo-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}vimeo-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-declare -x PROJECTS[7]="so-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}so-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-declare -x PROJECTS[8]="private-messaging-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}private-messaging-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-declare -x PROJECTS[9]="opensocial-portlet ${SVN_SRV}${SVN_PATH_PLUGIN_PREFIX}opensocial-portlet${SVN_PATH_PLUGIN_SUFFIX}"
-
-
-# How does language file looks like (e.g. Language.properties) 
-declare -x -r FILE="Language"
-declare -x -r PROP_EXT="properties"
-declare -x -r PO_EXT="po"
-declare -x -r POT_EXT="pot"
-declare -x -r LANG_SEP="_"
-
-### END OF CONFIGURATION
-
-### Declare useful variables
-#declare -x -r SCRIPT_PATH=$(cd ${0%/*} && echo $PWD/${0##*/})
-#declare -x -r SCRIPT_DIR=`dirname $SCRIPT_PATH`
-
-    check_command() {
-	if [ $? -eq 0 ]; then
-		echo_yellow "OK"
-	else 
-		echo_red "FAIL"
-	fi
-    }
-
-    check_dir() {
-        echo -n "    Cleaning dir $1 "
-	if [ ! -d $1 ]; then
-		mkdir -p $1
-	else 
-		rm -Rf $1/*
-	fi
-	check_command
-    }
-
-# $1 - project
-# $2 - dir
-# $3 - file prefix
-report_dir() {
-	file "{$2}*" > "/var/tmp/$1/$3.txt"
-}
-
-####
-## Wait for user "any key" input
-####
-    any_key() {
-	echo -n "Press any key to continue..."
-	read -s -n 1
-	echo
-    }
-    
-####
-## Echo coloured messages
-####
-# $@ - Message (all parameters)
-    COLOROFF="\033[1;0m"; GREEN="\033[1;32m"; RED="\033[1;31m"; LILA="\033[1;35m"
-    YELLOW="\033[1;33m"; BLUE="\033[1;34m"; WHITE="\033[1;37m"; CYAN="\033[1;36m"
-    #echo -e '\E[0;31m'"\033[1m$1\033[0m"
-    echo_green() { echo -e "$GREEN$@$COLOROFF"; }    
-    echo_red() { echo -e "$RED$@$COLOROFF"; }
-    echo_lila() { echo -e "$LILA$@$COLOROFF"; }
-    echo_yellow() { echo -e "$YELLOW$@$COLOROFF"; }
-    echo_blue() { echo -e "$BLUE$@$COLOROFF"; }
-    echo_white() { echo -e "$WHITE$@$COLOROFF"; }
-    echo_cyan() { echo -e "$CYAN$@$COLOROFF"; } 
-    
 ####
 ## Resolve parameters
 ####
