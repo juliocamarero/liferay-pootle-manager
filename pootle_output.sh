@@ -81,3 +81,14 @@
         done
     }
 
+    prepare_output_dirs() {
+		echo_cyan "[`date`] Preparing project output working dirs..."
+		projects_count=$((${#PROJECTS[@]} - 1))
+		for i in `seq 0 $projects_count`;
+		do
+			project=`echo ${PROJECTS[$i]}| cut -f1 -d ' '`
+			echo_white "  $project: creating / cleaing dirs"
+			check_dir "$TMP_PROP_OUT_DIR/$project"
+			check_dir "$TMP_PO_DIR/$project"
+		done
+	}

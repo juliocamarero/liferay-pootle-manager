@@ -78,3 +78,18 @@
 		$POOTLEDIR/manage.py update_stores --project="$project"	-v 0
 	done
     }
+
+	prepare_input_dirs() {
+		echo_cyan "[`date`] Preparing project input working dirs..."
+		projects_count=$((${#PROJECTS[@]} - 1))
+		for i in `seq 0 $projects_count`;
+		do
+			project=`echo ${PROJECTS[$i]}| cut -f1 -d ' '`
+			echo_white "  $project: creating / cleaing dirs"
+			check_dir "$TMP_PROP_IN_DIR/$project"
+			check_dir "$TMP_PROP_IN_DIR/$project/orphan"
+			check_dir "$TMP_PROP_IN_DIR/$project/aut"
+			check_dir "$TMP_PROP_IN_DIR/$project/empty"
+			check_dir "$TMP_PROP_IN_DIR/$project/svn"
+		done
+	}

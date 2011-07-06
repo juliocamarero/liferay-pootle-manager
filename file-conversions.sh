@@ -39,7 +39,6 @@
 	do
 		project=`echo ${PROJECTS[$i]}| cut -f1 -d ' '`
 		echo_white "  $project: converting properties to native"
-		#check_dir "$TMP_PROP_OUT_DIR/$project"
 		#cp -R $PODIR/$project/*.properties $TMP_PROP_OUT_DIR/$project
 		languages=`ls "$TMP_PROP_OUT_DIR/$project"`
 		for language in $languages ; do
@@ -59,7 +58,6 @@
 	do
 		echo_white "  $project: cleaning orphan keys"
 		languages=`ls "$SVNDIR/$project"`
-		check_dir "$TMP_PROP_IN_DIR/$project/orphan"
 		for language in $languages;
 		do
 			if [ -f $SVNDIR/$project/$language ] && [ "$FILE.$PROP_EXT" != "$language" ]; then
@@ -218,7 +216,6 @@
 	do
 		project=`echo ${PROJECTS[$i]}| cut -f1 -d ' '`
 		echo_white "  $project: creating .po file"
-		check_dir "$TMP_PO_DIR/$project"
 		prop2po -i $PODIR/$project/$FILE.$PROP_EXT -o $TMP_PO_DIR/$project/ -P
 	done
     }

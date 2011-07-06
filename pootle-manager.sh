@@ -85,14 +85,8 @@ verify_params 25 "Configuration load failed. You should fill in all variables in
     #  . project must exist in pootle
     #  . templates language may not exist? (how affect exporting with comments?)
     svn2pootle() {
-	# prepare working dirs
-	check_dir $TMP_DIR
-	check_dir $TMP_PROP_IN_DIR
-	check_dir $TMP_PO_DIR
-
-	#  (this forces to use svn co all the time)
-	check_dir $SVNDIR 
-
+    # prepare working dirs
+    prepare_input_dirs
 	#checkout .properties files from SVN
 	checkout_projects
 	# makes sure that Language_*.properties do not have keys not present in Language.properties
@@ -111,8 +105,7 @@ verify_params 25 "Configuration load failed. You should fill in all variables in
 
     pootle2svn() {
 	# prepare working dirs
-	check_dir $TMP_PROP_OUT_DIR
-	check_dir $TMP_PO_DIR
+    prepare_output_dirs
 	# let Pootle write its DB contents to translation files
 	update_pootle_files
 	# generate and keep a .po file for later export format conversion

@@ -27,7 +27,6 @@
 		fi
 	fi
 
-	check_dir "$TMP_PROP_IN_DIR/$1/svn"
     echo "    Backing up svn files"
 	for language in `ls $SVNDIR/$1/*.properties` ; do
 		echo "cp $language $TMP_PROP_IN_DIR/$1/svn/"
