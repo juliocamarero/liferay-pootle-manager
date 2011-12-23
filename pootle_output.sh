@@ -29,7 +29,7 @@
 		project=`echo ${PROJECTS[$i]}| cut -f1 -d ' '`
 		languages=`ls $PODIR/$project`
 		echo_white "  $project: reformatting files"
-		check_dir "$TMP_PROP_OUT_DIR/$project"
+		clean_dir "$TMP_PROP_OUT_DIR/$project"
 		for language in $languages; do
 			if [ "$language" != "$FILE.$PROP_EXT" ]; then
 				echo "    $project/$language "
@@ -88,7 +88,20 @@
 		do
 			project=`echo ${PROJECTS[$i]}| cut -f1 -d ' '`
 			echo_white "  $project: creating / cleaing dirs"
-			check_dir "$TMP_PROP_OUT_DIR/$project"
-			check_dir "$TMP_PO_DIR/$project"
+			clean_dir "$TMP_PROP_OUT_DIR/$project"
+			clean_dir "$TMP_PO_DIR/$project"
 		done
 	}
+
+    backup_db() {
+		echo_cyan "[`date`] Backing up Pootle DB..."
+		dirname=$(date +%Y-%m);
+		filename=$(echo $(date +%F_%H-%M-%S)"-pootle.sql");
+		dumpfile="$TMP_DB_BACKUP_DIR/$dirname/$filename";
+
+		echo_white "  Dumping Pootle DB into $dumpfile"
+		check_dir "$TMP_DB_BACKUP_DIR/$dirname"
+		echo -n  "    Running dump command ";
+		$DB_DUMP_COMMAND > $dumpfile;
+		check_command;
+    }

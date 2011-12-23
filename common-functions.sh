@@ -28,10 +28,24 @@
 ## Create dir if does not exist
 ####
     check_dir() {
-	echo -n "    Checking dir $1 "
 	if [ ! -d $1 ]; then
+		echo -n "    Creating dir $1 "
 		mkdir -p $1
 	else
+		echo -n "    Using dir $1 "
+	fi
+	check_command
+	}
+
+####
+## Create dir if does not exist, delete its contents otherwise
+####
+    clean_dir() {
+	if [ ! -d $1 ]; then
+		echo -n "    Creating dir $1 "
+		mkdir -p $1
+	else
+		echo -n "    Cleaning dir $1 "
 		rm -Rf $1/*
 	fi
 	check_command

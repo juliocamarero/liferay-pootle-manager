@@ -86,10 +86,10 @@
 		do
 			project=`echo ${PROJECTS[$i]}| cut -f1 -d ' '`
 			echo_white "  $project: creating / cleaing dirs"
-			check_dir "$TMP_PROP_IN_DIR/$project"
-			check_dir "$TMP_PROP_IN_DIR/$project/orphan"
-			check_dir "$TMP_PROP_IN_DIR/$project/aut"
-			check_dir "$TMP_PROP_IN_DIR/$project/empty"
-			check_dir "$TMP_PROP_IN_DIR/$project/svn"
+			clean_dir "$TMP_PROP_IN_DIR/$project"
+			clean_dir "$TMP_PROP_IN_DIR/$project/orphan"
+			clean_dir "$TMP_PROP_IN_DIR/$project/aut"
+			clean_dir "$TMP_PROP_IN_DIR/$project/empty"
+			clean_dir "$TMP_PROP_IN_DIR/$project/svn"
 		done
 	}

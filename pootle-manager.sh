@@ -85,6 +85,8 @@ verify_params 25 "Configuration load failed. You should fill in all variables in
     #  . project must exist in pootle
     #  . templates language may not exist? (how affect exporting with comments?)
     svn2pootle() {
+    # back-up database before importing anything
+    backup_db
     # prepare working dirs
     prepare_input_dirs
 	#checkout .properties files from SVN
