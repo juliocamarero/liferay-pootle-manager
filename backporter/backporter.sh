@@ -110,7 +110,7 @@ function read_locale_file() {
 		(( counter++ ))
 		if is_key_line "$line" ; then
 			key=$(echo $line | sed s/=.*//)
-			value=$(echo $line | sed -r s/^[^=]+=//)
+			value=$(echo $line | sed -E s/^[^=]+=//)
 			T[$2,$key]=$value
 			if [[ $2 == $old_english ]]; then
 				K[${#K[@]}]=$key
@@ -248,7 +248,7 @@ function read_lang_files() {
 
 function compute_locales() {
 	for language_file in $(ls $target_dir/${file_prefix}${file_sep}*.$file_ext); do
-		locale=$(echo $language_file | sed -r "s:$target_dir\/${file_prefix}${file_sep}([^\.]+).$file_ext:\1:")
+		locale=$(echo $language_file | sed -E "s:$target_dir\/${file_prefix}${file_sep}([^\.]+).$file_ext:\1:")
 		L[${#L[@]}]=$locale
 	done
 	locales="${L[@]}"
