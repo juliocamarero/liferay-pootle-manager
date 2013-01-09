@@ -126,7 +126,7 @@ function backport() {
 	echo
 	echo "Backporting to $1"
 	clear_translations
-	read_lang_files $locale
+	read_lang_files $1
 	file="${target_lang_path}.backported"
 	file_hrr_improvements="${target_lang_path}.review.improvements"
 	file_hrr_changes="${target_lang_path}.review.changes"
